@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Bot Control Panel - 24/7 Cloud Deployment</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Traffic Bot Control Panel</h1>
+            <p class="subtitle">Configure and monitor your 24/7 cloud-based traffic bot</p>
+            <div id="status-badge" class="status-badge">
+                <span id="status-indicator">●</span>
+                <span id="status-text">Checking status...</span>
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Configuration Panel -->
+            <div class="card">
+                <h2>⚙️ Bot Configuration</h2>
+                <form id="botForm">
+                    <div class="form-group">
+                        <label for="targetUrl">Target URL:</label>
+                        <input 
+                            type="url" 
+                            id="targetUrl" 
+                            placeholder="https://example.com" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Duration (ms):</label>
+                        <input 
+                            type="number" 
+                            id="duration" 
+                            value="30000" 
+                            min="5000" 
+                            step="1000"
+                            required
+                        >
+                        <small>How long to stay on page</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="interval">Interval (ms):</label>
+                        <input 
+                            type="number" 
+                            id="interval" 
+                            value="5000" 
+                            min="1000" 
+                            step="1000"
+                            required
+                        >
+                        <small>Time between visit batches</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="concurrency">Concurrency:</label>
+                        <input 
+                            type="number" 
+                            id="concurrency" 
+                            value="5" 
+                            min="1" 
+                            max="10"
+                            required
+                        >
+                        <small>Number of simultaneous bots (1-10)</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        🚀 Update Configuration
+                    </button>
+                </form>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="card">
+                <h2>📊 Live Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalVisits">0</div>
+                        <div class="stat-label">Total Visits</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="uptime">--</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+
+                <h3>Visits by URL</h3>
+                <div id="urlStats" class="url-stats">
+                    <p class="text-muted">No visits recorded yet</p>
+                </div>
+
+                <button onclick="loadStats()" class="btn btn-secondary">
+                    🔄 Refresh Stats
+                </button>
+            </div>
+
+            <!-- Current Job Info -->
+            <div class="card">
+                <h2>🎯 Current Job</h2>
+                <div id="currentJob" class="job-info">
+                    <p class="loading">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Deployment Info -->
+            <div class="card highlight">
+                <h2>☁️ Cloud Deployment</h2>
+                <p><strong>Status:</strong> <span id="deployment-status">Running 24/7</span></p>
+                <p><strong>Platform:</strong> Auto-detected</p>
+                <p><strong>Health Check:</strong> <a href="/health" target="_blank">/health</a></p>
+                
+                <div class="deployment-info">
+                    <h3>Quick Links:</h3>
+                    <ul>
+                        <li><a href="/api/stats" target="_blank">📊 API Stats</a></li>
+                        <li><a href="/api/job" target="_blank">⚙️ Current Job</a></li>
+                        <li><a href="/health" target="_blank">❤️ Health Check</a></li>
+                    </ul>
+                </div>
+
+                <p class="text-muted text-small">
+                    This bot runs continuously in the cloud. Configuration is persistent across restarts.
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Traffic Bot v1.0 | Running on Cloud Infrastructure</p>
+            <p class="text-small">
+                <a href="README.md" target="_blank">📖 Deployment Guide</a> | 
+                <a href="https://github.com" target="_blank">🔗 GitHub</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        // Load current job configuration
+        async function loadCurrentJob() {
+            try {
+                const response = await fetch(`${API_BASE}/api/job`);
+                const job = await response.json();
+                
+                document.getElementById('targetUrl').value = job.targetUrl || '';
+                document.getElementById('duration').value = job.duration || 30000;
+                document.getElementById('interval').value = job.interval || 5000;
+                document.getElementById('concurrency').value = job.concurrency || 5;
+                
+                displayCurrentJob(job);
+                updateStatusBadge(true);
+            } catch (error) {
+                console.error('Error loading job:', error);
+                document.getElementById('currentJob').innerHTML = 
+                    '<p class="error">Failed to load current job</p>';
+                updateStatusBadge(false);
+            }
+        }
+
+        function displayCurrentJob(job) {
+            const jobHtml = `
+                <div class="job-details">
+                    <p><strong>Target:</strong> ${job.targetUrl}</p>
+                    <p><strong>Duration:</strong> ${job.duration / 1000}s</p>
+                    <p><strong>Interval:</strong> ${job.interval / 1000}s</p>
+                    <p><strong>Concurrency:</strong> ${job.concurrency}</p>
+                </div>
+            `;
+            document.getElementById('currentJob').innerHTML = jobHtml;
+        }
+
+        function updateStatusBadge(online) {
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            
+            if (online) {
+                indicator.style.color = '#10b981';
+                text.textContent = 'Bot Online';
+            } else {
+                indicator.style.color = '#ef4444';
+                text.textContent = 'Bot Offline';
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('totalVisits').textContent = stats.totalVisits || 0;
+                document.getElementById('uptime').textContent = stats.uptimeFormatted || '--';
+                
+                const urlStatsDiv = document.getElementById('urlStats');
+                if (Object.keys(stats.visitsByUrl || {}).length > 0) {
+                    let html = '<ul class="url-list">';
+                    for (const [url, count] of Object.entries(stats.visitsByUrl)) {
+                        html += `<li><strong>${count}</strong> visits to <code>${url}</code></li>`;
+                    }
+                    html += '</ul>';
+                    urlStatsDiv.innerHTML = html;
+                } else {
+                    urlStatsDiv.innerHTML = '<p class="text-muted">No visits recorded yet</p>';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('botForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                targetUrl: document.getElementById('targetUrl').value,
+                duration: parseInt(document.getElementById('duration').value),
+                interval: parseInt(document.getElementById('interval').value),
+                concurrency: parseInt(document.getElementById('concurrency').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/job`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Configuration updated successfully! Bot will use new settings for next batch.');
+                    loadCurrentJob();
+                } else {
+                    alert('❌ Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('❌ Failed to update configuration: ' + error.message);
+            }
+        });
+
+        // Auto-refresh stats every 10 seconds
+        setInterval(loadStats, 10000);
+
+        // Initial load
+        loadCurrentJob();
+        loadStats();
+    </script>
+</body>
+</html>
