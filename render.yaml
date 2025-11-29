@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: traffic-bot
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: SERVER_URL
+        value: http://localhost:3000
+    healthCheckPath: /health
